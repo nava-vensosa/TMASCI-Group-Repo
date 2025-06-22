@@ -1,58 +1,60 @@
-let osc;         // Oscillator object
+// p5_synth: Interactive p5.Oscillator() Demo
+
+let osc;
 let playing = false;
-let freqSlider, ampSlider, waveSelect, playButton;
 
 function setup() {
+  // Attach p5 canvas to the container (for completeness, though not strictly needed for audio)
   let cnv = createCanvas(400, 120);
   cnv.parent('p5-container');
-
-  // Create Oscillator
-  osc = new p5.Oscillator('sine');
-
-  // Frequency slider
-  freqSlider = createSlider(100, 1000, 440);
-  freqSlider.position(20, 40);
-  freqSlider.style('width', '360px');
-
-  // Amplitude slider
-  ampSlider = createSlider(0, 1, 0.5, 0.01);
-  ampSlider.position(20, 80);
-  ampSlider.style('width', '360px');
-
-  // Waveform dropdown
-  waveSelect = createSelect();
-  waveSelect.position(20, 10);
-  ['sine','triangle','square','sawtooth'].forEach(type => waveSelect.option(type));
-  waveSelect.selected('sine');
-
-  // Play/Stop button
-  playButton = createButton('Start Oscillator');
-  playButton.position(290, 10);
-  playButton.mousePressed(toggleOscillator);
-}
-
-function draw() {
   background('#e3eaf2');
-  textSize(16);
-  fill(30);
-  text('Waveform:', 20, 25);
-  text('Frequency: ' + freqSlider.value() + ' Hz', 20, 60);
-  text('Amplitude: ' + ampSlider.value(), 20, 100);
+  noLoop();
 
-  // Set oscillator parameters in real time
-  osc.setType(waveSelect.value());
-  osc.freq(freqSlider.value());
-  osc.amp(ampSlider.value(), 0.1);
-}
+  // Initialize oscillator
+  osc = new p5.Oscillator('sine');
+  osc.amp(0.5);
 
-function toggleOscillator() {
-  if (!playing) {
-    osc.start();
-    playButton.html('Stop Oscillator');
-    playing = true;
-  } else {
-    osc.stop();
-    playButton.html('Start Oscillator');
-    playing = false;
-  }
+  // DOM elements from HTML
+  const waveSelect = document.getElementById('waveSelect');
+  const freqSlider = document.getElementById('freqSlider');
+  const ampSlider = document.getElementById('ampSlider');
+  const playButton = document.getElementById('playButton');
+  const freqLabel = document.getElementById('freqLabel');
+  const ampLabel = document.getElementById('ampLabel');
+
+  // Update oscillator and UI on input
+  waveSelect.addEventListener('change', function() {
+    osc.setType(this.value);
+  });
+
+  freqSlider.addEventListener('input', function() {
+    osc.freq(Number(this.value));
+    freqLabel.textContent = this.value;
+  });
+
+  ampSlider.addEventListener('input', function() {
+    osc.amp(Number(this.value), 0.1);
+    ampLabel.textContent = this.value;
+  });
+
+  playButton.addEventListener('click', function() {
+    if (!playing) {
+      // Some browsers block AudioContext until user gesture
+      userStartAudio();
+      osc.start();
+      this.textContent = 'Stop Oscillator';
+      playing = true;
+    } else {
+      osc.stop();
+      this.textContent = 'Start Oscillator';
+      playing = false;
+    }
+  });
+
+  // Set initial values for oscillator
+  osc.setType(waveSelect.value);
+  osc.freq(Number(freqSlider.value));
+  osc.amp(Number(ampSlider.value));
+  freqLabel.textContent = freqSlider.value;
+  ampLabel.textContent = ampSlider.value;
 }

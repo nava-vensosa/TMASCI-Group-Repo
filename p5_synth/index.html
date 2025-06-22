@@ -1,68 +1,78 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+  <meta charset="UTF-8">
+  <title>Beginner's Guide to p5.Oscillator()</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner's tutorial and interactive demo for p5.Oscillator() using p5.js and p5.sound.">
+  <link rel="stylesheet" href="style.css">
+  <!-- p5.js and p5.sound from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Beginner's Guide to p5.Oscillator()&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;link rel="stylesheet" href="style.css"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;header&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;Beginner's Introduction to &lt;code&gt;p5.Oscillator()&lt;/code&gt;&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;p&gt;This static site is built using HTML, CSS, and JavaScript with &lt;a href="https://p5js.org/reference/#/p5.Oscillator" target="_blank"&gt;p5.js&lt;/a&gt;. No backend: it's pure front-end code, so you can host it anywhere (like GitHub Pages).&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/header&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;main&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;What is &lt;code&gt;p5.Oscillator()&lt;/code&gt;?&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p&gt;The &lt;code&gt;p5.Oscillator()&lt;/code&gt; object lets you generate and control sounds in your browser. It's part of the &lt;code&gt;p5.sound&lt;/code&gt; library and can produce sine, triangle, square, or sawtooth waves.&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;Instantiate an Oscillator&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p&gt;Below you can create and control an oscillator. Try changing the waveform, frequency, or amplitude, and start/stop the sound!&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="p5-container"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;How Does it Work?&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;li&gt;&lt;strong&gt;Waveform:&lt;/strong&gt; The shape of the sound wave (&lt;code&gt;sine&lt;/code&gt;, &lt;code&gt;triangle&lt;/code&gt;, &lt;code&gt;square&lt;/code&gt;, &lt;code&gt;sawtooth&lt;/code&gt;).&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;li&gt;&lt;strong&gt;Frequency:&lt;/strong&gt; How high or low the pitch is (Hz).&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;li&gt;&lt;strong&gt;Amplitude:&lt;/strong&gt; The volume (0.0 = silent, 1.0 = loudest).&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;li&gt;&lt;strong&gt;Start/Stop:&lt;/strong&gt; Play or pause the oscillator.&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;p&gt;Interact with the controls above to see how changing parameters affects the sound!&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;Further Resources&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;li&gt;&lt;a href="https://p5js.org/reference/#/p5.Oscillator" target="_blank"&gt;p5.Oscillator() docs&lt;/a&gt;&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;li&gt;&lt;a href="https://p5js.org/examples/sound-oscillator-frequency.html" target="_blank"&gt;Oscillator Example&lt;/a&gt;&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/main&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;footer&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;p&gt;Made for TMASCI Group Repo | &lt;a href="https://github.com/nava-vensosa/TMASCI-Group-Repo" target="_blank"&gt;Source&lt;/a&gt;&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/footer&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="sketch.js"&gt;&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+  <header>
+    <h1>Beginner's Introduction to <code>p5.Oscillator()</code></h1>
+    <p>
+      This static site is built with HTML, CSS, and JavaScript using <a href="https://p5js.org/" target="_blank" rel="noopener">p5.js</a>. 
+      No backend needed—just open in your browser or host with GitHub Pages!
+    </p>
+  </header>
+  <main>
+    <section>
+      <h2>What is <code>p5.Oscillator()</code>?</h2>
+      <p>
+        The <code>p5.Oscillator()</code> object lets you generate and control sounds in your browser. 
+        It's part of the <code>p5.sound</code> library and can produce sine, triangle, square, or sawtooth waves.
+      </p>
+    </section>
+    <section>
+      <h2>Try It Yourself!</h2>
+      <p>
+        Below you can create and control an oscillator. Try changing the waveform, frequency, or amplitude, and start/stop the sound!
+      </p>
+      <div id="p5-container" aria-live="polite"></div>
+      <div id="controls" class="controls">
+        <label for="waveSelect">Waveform:</label>
+        <select id="waveSelect" aria-label="Waveform">
+          <option value="sine">Sine</option>
+          <option value="triangle">Triangle</option>
+          <option value="square">Square</option>
+          <option value="sawtooth">Sawtooth</option>
+        </select>
+
+        <label for="freqSlider">Frequency: <span id="freqLabel">440</span> Hz</label>
+        <input type="range" id="freqSlider" min="100" max="1000" value="440" step="1" aria-label="Frequency">
+
+        <label for="ampSlider">Amplitude: <span id="ampLabel">0.5</span></label>
+        <input type="range" id="ampSlider" min="0" max="1" value="0.5" step="0.01" aria-label="Amplitude">
+
+        <button id="playButton">Start Oscillator</button>
+      </div>
+    </section>
+    <section>
+      <h2>How Does it Work?</h2>
+      <ul>
+        <li><strong>Waveform:</strong> The shape of the sound wave (<code>sine</code>, <code>triangle</code>, <code>square</code>, <code>sawtooth</code>).</li>
+        <li><strong>Frequency:</strong> How high or low the pitch is (Hz).</li>
+        <li><strong>Amplitude:</strong> The volume (0.0 = silent, 1.0 = loudest).</li>
+        <li><strong>Start/Stop:</strong> Play or pause the oscillator.</li>
+      </ul>
+      <p>
+        Interact with the controls above to see how changing parameters affects the sound!
+      </p>
+    </section>
+    <section>
+      <h2>Further Resources</h2>
+      <ul>
+        <li><a href="https://p5js.org/reference/#/p5.Oscillator" target="_blank" rel="noopener">p5.Oscillator() docs</a></li>
+        <li><a href="https://p5js.org/examples/sound-oscillator-frequency.html" target="_blank" rel="noopener">Oscillator Example</a></li>
+      </ul>
+    </section>
+  </main>
+  <footer>
+    <p>Made for TMASCI Group Repo | <a href="https://github.com/nava-vensosa/TMASCI-Group-Repo" target="_blank" rel="noopener">Source</a></p>
+  </footer>
+  <script src="sketch.js"></script>
 </body>
 </html>
