@@ -15,7 +15,7 @@ function setup() {
   cnv.parent('p5-container');
   
   // Initialize FFT for audio analysis
-  fft = new p5.FFT(1, 2048);
+  fft = new p5.FFT(1, bufferSize);
   
   // Start the drawing loop for real-time visualization
   loop();
