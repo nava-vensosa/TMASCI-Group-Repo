@@ -3,6 +3,11 @@
 let osc;
 let playing = false;
 let fft;
+let periodViewMode = false;
+let waveformBuffer = [];
+let frozenPeriod = [];
+let bufferSize = 8192;
+let lastFrequency = 440;
 
 function setup() {
   // Attach p5 canvas to the container - now used for oscilloscope visualization
@@ -30,19 +35,40 @@ function setup() {
   const freqLabel = document.getElementById('freqLabel');
   const ampLabel = document.getElementById('ampLabel');
 
+  // Create period view toggle button
+  const periodToggle = document.createElement('button');
+  periodToggle.textContent = 'Period View: OFF';
+  periodToggle.id = 'periodToggle';
+  periodToggle.style.marginTop = '10px';
+  document.getElementById('controls').appendChild(periodToggle);
+
+  // Initialize waveform buffer
+  waveformBuffer = new Array(bufferSize).fill(0);
+
   // Update oscillator and UI on input
   waveSelect.addEventListener('change', function() {
     osc.setType(this.value);
+    if (periodViewMode) updateFrozenPeriod();
   });
 
   freqSlider.addEventListener('input', function() {
     osc.freq(Number(this.value));
     freqLabel.textContent = this.value;
+    lastFrequency = Number(this.value);
+    if (periodViewMode) updateFrozenPeriod();
   });
 
   ampSlider.addEventListener('input', function() {
     osc.amp(Number(this.value), 0.1);
     ampLabel.textContent = this.value;
+  });
+
+  periodToggle.addEventListener('click', function() {
+    periodViewMode = !periodViewMode;
+    this.textContent = periodViewMode ? 'Period View: ON' : 'Period View: OFF';
+    if (periodViewMode && playing) {
+      updateFrozenPeriod();
+    }
   });
 
   playButton.addEventListener('click', function() {
@@ -71,11 +97,22 @@ function draw() {
   // Clear background with a subtle color
   background('#1a1a2e');
   
-  // Get waveform data from FFT
-  let waveform = fft.waveform();
+  // Get current waveform data
+  let currentWaveform = fft.waveform();
+  
+  // Update rolling buffer with new data
+  updateWaveformBuffer(currentWaveform);
   
   // Draw the oscilloscope grid
   drawGrid();
+  
+  // Choose which waveform to display
+  let displayWaveform;
+  if (periodViewMode && playing && frozenPeriod.length > 0) {
+    displayWaveform = frozenPeriod;
+  } else {
+    displayWaveform = currentWaveform;
+  }
   
   // Draw the waveform
   stroke('#00d4aa');
@@ -83,9 +120,9 @@ function draw() {
   noFill();
   
   beginShape();
-  for (let i = 0; i < waveform.length; i++) {
-    let x = map(i, 0, waveform.length, 0, width);
-    let y = map(waveform[i], -1, 1, height, 0);
+  for (let i = 0; i < displayWaveform.length; i++) {
+    let x = map(i, 0, displayWaveform.length, 0, width);
+    let y = map(displayWaveform[i], -1, 1, height, 0);
     vertex(x, y);
   }
   endShape();
@@ -115,17 +152,17 @@ function drawGrid() {
 }
 
 function drawStatusIndicator() {
-  // Draw a small indicator showing if audio is playing
+  // Draw a small indicator showing if audio is playing and mode
   if (playing) {
     fill('#00d4aa');
     noStroke();
     circle(width - 15, 15, 8);
     
-    // Add "LIVE" text
+    // Add mode text
     fill('#00d4aa');
     textAlign(RIGHT, TOP);
     textSize(10);
-    text('LIVE', width - 25, 8);
+    text(periodViewMode ? 'PERIOD' : 'LIVE', width - 25, 8);
   } else {
     fill('#666');
     noStroke();
@@ -137,4 +174,114 @@ function drawStatusIndicator() {
     textSize(10);
     text('OFF', width - 25, 8);
   }
+}
+
+// Auto-correlation and period detection functions
+
+function updateWaveformBuffer(newWaveform) {
+  // Shift buffer and add new data
+  const samplesToAdd = Math.min(newWaveform.length, bufferSize);
+  
+  // Shift existing data left
+  for (let i = 0; i < bufferSize - samplesToAdd; i++) {
+    waveformBuffer[i] = waveformBuffer[i + samplesToAdd];
+  }
+  
+  // Add new data to the end
+  for (let i = 0; i < samplesToAdd; i++) {
+    waveformBuffer[bufferSize - samplesToAdd + i] = newWaveform[i];
+  }
+}
+
+function updateFrozenPeriod() {
+  if (!playing || waveformBuffer.length === 0) return;
+  
+  // Estimate period length based on frequency
+  const sampleRate = 44100; // Assume standard sample rate
+  const estimatedPeriodSamples = Math.round(sampleRate / lastFrequency);
+  
+  // Use auto-correlation to find actual period
+  const detectedPeriod = findPeriodByAutoCorrelation(waveformBuffer, estimatedPeriodSamples);
+  
+  if (detectedPeriod > 0) {
+    // Extract one clean period from the buffer
+    frozenPeriod = extractPeriod(waveformBuffer, detectedPeriod);
+  }
+}
+
+function findPeriodByAutoCorrelation(signal, estimatedPeriod) {
+  const minPeriod = Math.max(10, Math.round(estimatedPeriod * 0.5));
+  const maxPeriod = Math.min(signal.length / 4, Math.round(estimatedPeriod * 2));
+  
+  let bestCorrelation = -1;
+  let bestPeriod = estimatedPeriod;
+  
+  // Search around the estimated period
+  for (let period = minPeriod; period <= maxPeriod; period++) {
+    const correlation = calculateAutoCorrelation(signal, period);
+    
+    if (correlation > bestCorrelation) {
+      bestCorrelation = correlation;
+      bestPeriod = period;
+    }
+  }
+  
+  // Only return if correlation is strong enough
+  return bestCorrelation > 0.3 ? bestPeriod : estimatedPeriod;
+}
+
+function calculateAutoCorrelation(signal, lag) {
+  if (lag >= signal.length || lag <= 0) return 0;
+  
+  let correlation = 0;
+  let count = 0;
+  
+  // Calculate correlation over multiple periods for better accuracy
+  const numPeriods = Math.floor((signal.length - lag) / lag);
+  const samplesPerPeriod = Math.min(lag, 512); // Limit for performance
+  
+  for (let period = 0; period < numPeriods - 1; period++) {
+    for (let i = 0; i < samplesPerPeriod; i++) {
+      const idx1 = period * lag + i;
+      const idx2 = (period + 1) * lag + i;
+      
+      if (idx2 < signal.length) {
+        correlation += signal[idx1] * signal[idx2];
+        count++;
+      }
+    }
+  }
+  
+  return count > 0 ? correlation / count : 0;
+}
+
+function extractPeriod(signal, periodLength) {
+  // Find a good starting point (zero crossing with positive slope)
+  let startIdx = findZeroCrossing(signal, periodLength);
+  
+  if (startIdx === -1) {
+    // Fallback: use middle of buffer
+    startIdx = Math.floor(signal.length / 2);
+  }
+  
+  // Extract one period
+  const period = [];
+  for (let i = 0; i < periodLength && startIdx + i < signal.length; i++) {
+    period.push(signal[startIdx + i]);
+  }
+  
+  return period;
+}
+
+function findZeroCrossing(signal, searchRange) {
+  const startSearch = Math.max(0, signal.length - searchRange * 2);
+  
+  for (let i = startSearch; i < signal.length - 1; i++) {
+    // Look for zero crossing with positive slope
+    if (signal[i] <= 0 && signal[i + 1] > 0) {
+      return i + 1;
+    }
+  }
+  
+  return -1; // No zero crossing found
 }
